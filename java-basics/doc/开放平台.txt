@@ -1,0 +1,95 @@
+主旨：BD小组，对外提供开放接口调用内部服务
+
+主要开发：网关服务优化调整
+
+1.开放平台pv，uv统计
+2.业务接口拦截策略
+3.运维配置和系统配置职责分离
+
+
+4.日志优化：目前需要依赖配置
+目的：日志组建独立对外提供，系统服务自身完成所有配置
+
+改造:
+1.把依赖配置抽离
+2.log4j的升级，1.2.17--->2.19
+3.slf4j打印日志，方便升级，兼容等
+4.slf4j集成redis集群--连接logService--db入库（traceId唯一记录）
+
+日志服务应用模型：
+应用服务--slf4j--logService--监听策略--（redis集群队列）--监听策略（日志数据满100kb或者长时间未满超时推送）--db入库（traceId唯一记录）
+
+
+
+commonserver----公共业务服务（如集成支付服务管理）
+
+
+开放网关gateway：
+1.运维、系统配置抽离（服务端+客户端）
+
+
+
+
+###############开放网关代码阅读记录###############
+1.openapi-gateway-service 启动类OpenapiGatewayServerStarter加载 spring-context.xml
+2.开启自动扫描配置
+3.PropertiesBean 加载属性文件，存储propertyPaths属性
+4.PropertyPlaceholderConfigurer 相关属性配置加载在spring容器中（内部属性properties ref="openapiConfigSdkRemoteProperties"，获取openapi-config-sdk中相关属性值）
+5.加载openapi-config-sdk相关配置步骤
+  获取远程配置工具 （beanId = openapiConfigSdkRemoteProperties）
+	5.1 openapiConfigSdkBean 对象加载，并执行方法init();
+	5.2 DefaultConfigCache  本地配置缓存对象初始化
+6.ConfigPropertyContainer 属性配置容器初始化，提供获取属性value的get方法
+7.排除Controller 的自动注解 annotation
+8.加入aop配置<aop:aspectj-autoproxy />，task配置<task:annotation-driven/>
+9.openapi-gateway-service内部初始化结束，开始加载相关配置xml文件，如jdbc等
+10.加载以下文件
+10.1	<import resource="classpath:openapi-config-sdk-context.xml"/>
+10.2	<import resource="classpath:openapi-logger-sdk-context.xml"/>
+10.3	<import resource="classpath:spring/spring-jdbc.xml" />
+10.4	<import resource="classpath:spring/spring-dubbo.xml"/>
+10.5	<import resource="classpath:spring/spring-redis.xml"/>
+
+10.1 重要,初始化定时任务DefaultConfigsRefreshTask，并执行begin方法，获取远程配置并判断是否刷新cache
+（String resultString = OKHttpUtil.getExecute(urlBuilder.toString()); http请求与返回结果是否为true；并进行异常重试3次处理机制，失败则发送通知）
+10...
+10.4 加载dubbo服务,并暴露服务提供者
+10.5 加载redis相关配置
+################openapi-gateway-service 启动结束########################
+
+
+
+openapi-gateway-web 加载基本同上（ openapi-gateway-service ）
+ 1.openapi-gateway-web 	 --dubbo消费者
+ 2.openapi-gateway-service --dubbo提供者
+
+
+
+
+
+
+############################开发计划安排和进度############################
+
+2017-10-31 	 	体检服务搭建与测试-已通过
+
+2017-11-01~11-03 	日method的pv,uv统计（更加usId）文档初步设计。
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

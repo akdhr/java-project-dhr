@@ -1,0 +1,41 @@
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+	    http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	    http://code.alibabatech.com/schema/dubbo http://code.alibabatech.com/schema/dubbo/dubbo.xsd
+
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.0.xsd">
+
+
+    <!--<dubbo:application name="dubbo-provider"/>-->
+    <!--<dubbo:registry address="${dubbo.registry.address}" file="${dubbo.cache.file}" group="${dubbo.registry.group}"/>-->
+    <!--<dubbo:protocol name="${dubbo.protocol.name}" port="${dubbo.protocol.port}"   accesslog="${dubbo.protocol.accesslog}"/>-->
+
+    <!--<dubbo:service interface="com.dhr.basic.dubbo.service.HelloService" ref="helloService" retries="0" group="helloService" cluster="failover"/>-->
+
+    <!--注册中心相关配置-->
+    <!--多注册中心注册-->
+    <dubbo:application name="world"/>
+    <dubbo:protocol name="${dubbo.protocol.name}" port="${dubbo.protocol.port}"   accesslog="${dubbo.protocol.accesslog}"/>
+    <!--多注册中心配置-->
+    <dubbo:registry id = "hzReg" address="10.20.141.150:9090"/>
+    <dubbo:registry id = "qdReg" address="10.20.154.177:9010" default="false"/>
+
+    <!--向多个注册中心注册服务-->
+    <dubbo:service interface="com.dhr.basic.dubbo.service.HelloService" version="0.0.0" ref="helloServicce" register="hzReg,qdReg"/>
+
+
+    <!--不同服务注册到不同注册中心-->
+    <dubbo:service interface="com.dhr.basic.dubbo.service.HelloService" version="0.0.0" ref="helloServicce" register="hzReg"/>
+    <dubbo:service interface="com.dhr.basic.thread.art.Test" version="0.0.0" ref="helloServicce" register="qdReg"/>
+
+
+    <!--服务分组相关配置-->
+    <!--当一个接口有多种实现时,可以用group区分-->
+    <dubbo:service interface="com.dhr.basic.dubbo.service.HelloService" group="feedback"/>
+    <dubbo:service interface="com.dhr.basic.dubbo.service.HelloService" group="member"/>
+
+
+
+</beans>

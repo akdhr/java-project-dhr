@@ -1,0 +1,20 @@
+
+Dubbo是一个分布式服务框架，以及SOA治理方案。其功能主要包括：高性能NIO通讯及多协议集成，服务动态寻址与路由，软负载均衡与容错，依赖分析与降级等。
+
+1.Protocol Support 协议支持
+2.Result Caching    结果缓存
+3.Cluster Support   集群支持
+4.Load Balancing    负载均衡
+    random
+    round-robin
+    least-active
+    consistent-hash.
+
+5.Fault Tolerance   容错
+    fail-over   故障转移,   In the case of fail-over, when one provider fails, the consumer can try with some other service providers in the cluster.
+    fail-safe
+    fail-fast
+    fail-back
+    forking.
+详情见http://www.baeldung.com/dubbo
+

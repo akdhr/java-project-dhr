@@ -1,0 +1,21 @@
+谈谈对ConcurrentHashMap的认识?
+1.数据结构
+2.实现原理
+3.并发控制
+4.put、get、size方法调用
+
+
+
+1.
+Segment 实现分段锁，继承ReentrantLock类
+	包含HashEntry<K,V>[] table属性，每个Segment内部都包含N个HashEntry
+HashEntry
+...
+2.实现原理
+	存放:通过对key进行哈希值计算并进行位与操作，计算得到所属的段Segment,没有则新建，否则构造HashEntry存放在指定的Segment中
+	取值:计算对应key的哈希值，得到Segment的索引并取值
+说明:Segment之间无需进行资源竞争、加快访问速度，提升效率.具体可见源码
+
+
+
+
